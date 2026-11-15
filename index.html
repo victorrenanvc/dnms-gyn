@@ -15,14 +15,29 @@
 <style>
   html, body { margin: 0; height: 100%; background: #000; }
   iframe { position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  #lemb { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.72); display: flex; align-items: flex-end; justify-content: center; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif; }
+  #lemb[hidden] { display: none; }
+  #lemb .folha { width: 100%; max-width: 480px; box-sizing: border-box; background: #161616; color: #F9F9F9; border: 1px solid #333; border-radius: 28px 28px 0 0; padding: 24px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+  #lemb h2 { margin: 0; font-size: 22px; line-height: 1.2; }
+  #lemb p { margin: 0; font-size: 16px; line-height: 1.4; color: #C9C9C9; }
+  #lemb button { min-height: 52px; border-radius: 999px; border: 1px solid #333; background: transparent; color: #F9F9F9; font: inherit; font-size: 17px; font-weight: 700; }
+  #lemb #lembSim { background: #E85002; border-color: #E85002; color: #000; }
 </style>
 </head>
 <body>
 <!-- Esta página só mostra o app em tela cheia. O app em si mora no Google Apps Script. -->
 <iframe src="https://script.google.com/macros/s/AKfycbww_j536m5iJby3iFHdw4qknzMcBDAncvmDJ8b3VCy2096AaBpAhsPyrWd8ZjrDJPopZQ/exec" title="dnms.gyn" allow="clipboard-write"></iframe>
+<div id="lemb" hidden role="dialog" aria-modal="true" aria-labelledby="lembTit">
+  <div class="folha">
+    <h2 id="lembTit">Ativar lembretes?</h2>
+    <p>O dnms.gyn avisa você no celular no dia em que estiver na escala. O celular vai pedir sua permissão em seguida.</p>
+    <button id="lembSim" type="button">Ativar</button>
+    <button id="lembNao" type="button">Agora não</button>
+  </div>
+</div>
 <script>
 // O app pede para esta página guardar as escolhas da pessoa neste aparelho (tema, nome, última versão dos dados).
-var CHAVES = ['dnms_theme', 'dnms_me', 'dnms_leader', 'dnms_data'];
+var CHAVES = ['dnms_theme', 'dnms_me', 'dnms_leader', 'dnms_data', 'dnms_pushme'];
 var ORIGEM_OK = /^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/;
 window.addEventListener('message', function (ev) {
   if (!ORIGEM_OK.test(ev.origin) || !ev.data) return;
@@ -35,6 +50,52 @@ window.addEventListener('message', function (ev) {
   if (d.dnms === 'set' && CHAVES.indexOf(d.k) >= 0) {
     try { localStorage.setItem(d.k, String(d.v)); } catch (e) {}
   }
+  if (d.dnms === 'push-state') { APP = { w: ev.source, o: ev.origin }; contarEstado(); }
+  if (d.dnms === 'push-ask' && typeof d.key === 'string') { APP = { w: ev.source, o: ev.origin }; CHAVE = d.key; if (PUSH_OK) FOLHA.hidden = false; else contarEstado(); }
+});
+
+// ---------- lembretes (notificações) ----------
+// Quem pede a permissão e recebe os avisos é esta página, porque é ela que fica instalada no celular.
+var APP = null, CHAVE = '', FOLHA = document.getElementById('lemb');
+var PUSH_OK = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+
+function responder(msg) { msg.dnms = 'push'; if (APP) { try { APP.w.postMessage(msg, APP.o); } catch (e) {} } }
+function aparelho() { var u = navigator.userAgent; return /iPhone/.test(u) ? 'iPhone' : /iPad/.test(u) ? 'iPad' : /Android/.test(u) ? 'Android' : /Mac/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows' : 'Outro'; }
+function resumo(sub) { var j = sub.toJSON(), k = j.keys || {}; return { endpoint: j.endpoint, p256dh: k.p256dh, auth: k.auth, aparelho: aparelho() }; }
+function bytes(b64) {
+  b64 = b64.replace(/-/g, '+').replace(/_/g, '/'); while (b64.length % 4) b64 += '=';
+  var t = atob(b64), o = new Uint8Array(t.length); for (var i = 0; i < t.length; i++) o[i] = t.charCodeAt(i); return o;
+}
+/** Conta para o app como estão os lembretes neste aparelho. */
+function contarEstado(extra) {
+  extra = extra || {};
+  if (!PUSH_OK) { extra.state = 'unsupported'; extra.why = (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) ? 'install' : ''; responder(extra); return; }
+  extra.state = Notification.permission;
+  if (extra.state !== 'granted' || extra.sub) { responder(extra); return; }
+  navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); })
+    .then(function (sub) { if (sub) extra.sub = resumo(sub); responder(extra); })
+    .catch(function () { responder(extra); });
+}
+function assinar(reg) {
+  var op = { userVisibleOnly: true, applicationServerKey: bytes(CHAVE) };
+  return reg.pushManager.subscribe(op).catch(function (e) {
+    // Se já existia uma assinatura antiga com outra chave, troca pela nova.
+    return reg.pushManager.getSubscription().then(function (velha) {
+      if (!velha) throw e;
+      return velha.unsubscribe().then(function () { return reg.pushManager.subscribe(op); });
+    });
+  });
+}
+document.getElementById('lembNao').addEventListener('click', function () { FOLHA.hidden = true; });
+document.getElementById('lembSim').addEventListener('click', function () {
+  FOLHA.hidden = true;
+  var pedido;
+  try { pedido = Notification.requestPermission(); } catch (e) { contarEstado({ error: 'este aparelho não aceita lembretes.' }); return; }
+  Promise.resolve(pedido).then(function (resp) {
+    if ((resp || Notification.permission) !== 'granted') { contarEstado(); return; }
+    return navigator.serviceWorker.ready.then(assinar).then(function (sub) { contarEstado({ sub: resumo(sub), fresh: true }); });
+  }).catch(function (e) { contarEstado({ error: (e && e.message) || 'tente de novo.' }); });
 });
 </script>
 </body>
