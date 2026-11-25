@@ -38,6 +38,12 @@
 <script>
 // O app pede para esta página guardar as escolhas da pessoa neste aparelho (tema, nome, última versão dos dados).
 var CHAVES = ['dnms_theme', 'dnms_me', 'dnms_leader', 'dnms_data', 'dnms_pushme'];
+// Link pessoal (?eu=Nome): abre o app já como essa pessoa. Usado uma vez e tirado do endereço.
+var CONVITE = '';
+try {
+  CONVITE = (new URLSearchParams(location.search).get('eu') || '').trim().slice(0, 60);
+  if (CONVITE) { localStorage.setItem('dnms_me', CONVITE); history.replaceState(null, '', location.pathname); }
+} catch (e) {}
 var ORIGEM_OK = /^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/;
 window.addEventListener('message', function (ev) {
   if (!ORIGEM_OK.test(ev.origin) || !ev.data) return;
@@ -45,7 +51,9 @@ window.addEventListener('message', function (ev) {
   if (d.dnms === 'get') {
     var guardado = {};
     CHAVES.forEach(function (k) { try { guardado[k] = localStorage.getItem(k); } catch (e) {} });
-    ev.source.postMessage({ dnms: 'data', store: guardado }, ev.origin);
+    var msg = { dnms: 'data', store: guardado };
+    if (CONVITE) { msg.convite = CONVITE; CONVITE = ''; }
+    ev.source.postMessage(msg, ev.origin);
   }
   if (d.dnms === 'set' && CHAVES.indexOf(d.k) >= 0) {
     try { localStorage.setItem(d.k, String(d.v)); } catch (e) {}
