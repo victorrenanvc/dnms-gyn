@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<base target="_blank">
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#262626;--bg2:#050505;--card:#2A2A2A;--card2:#343434;--line:transparent;--text:#F2F2F2;--muted:#9A9A9A;--accent:#BEE000;--accent-text:#BEE000;--on-accent:#000;--tint:rgba(190,224,0,.12);--brand:#F2F2F2;--ok:#BEE000;--seg:#2E2E2E;--segon:#5A5A5A;--outline:#E6E6E6;--warn:#FF6B81;--warnbg:#3A1B21}
+[data-theme=light]{--bg:#F6F6F6;--bg2:#DADADA;--card:#FFFFFF;--card2:#ECECEC;--text:#151515;--muted:#6B6B6B;--accent-text:#4E6B00;--tint:rgba(150,190,0,.16);--brand:#151515;--ok:#4E6B00;--seg:#E2E2E2;--segon:#FFFFFF;--outline:#151515;--warn:#C2183A;--warnbg:#FBE3E8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.35}
+body{min-height:100vh;background:transparent}
+body:before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+h1,h2,.t{font-family:Inter,system-ui,sans-serif}
+h1{font-size:28px;line-height:1.1;font-weight:700;margin:0;letter-spacing:-.6px}
+h2{font-size:17px;font-weight:600;margin:0}
+button{font-family:inherit;font-size:14px;color:inherit;cursor:pointer}
+a{color:inherit}
+#app{max-width:480px;margin:0 auto;padding:22px 16px 116px}
+.row{display:flex;align-items:center;gap:10px}
+.col{display:flex;flex-direction:column;gap:12px}
+.grow{flex:1;min-width:0}
+.muted{color:var(--muted)}.small{font-size:12px}
+.dt{font-size:25px;font-weight:300;letter-spacing:-.6px;line-height:1.15;color:var(--muted)}.dt b{font-weight:600;color:var(--text)}
+.card{background:var(--card);border:0;border-radius:20px;padding:12px 14px}
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:16px;color:#000;background:var(--accent)}
+.hero>*{position:relative}
+.hero .wm{position:absolute;right:-64px;top:-14px;height:190px;width:auto;opacity:.06;pointer-events:none}
+.hero h1{font-size:30px;letter-spacing:-.8px}
+.kick{font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+.rb{width:42px;height:42px;border-radius:999px;border:0;background:var(--card2);color:var(--text);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none}
+.hero .rb{background:#151515;color:#F2F2F2}
+.pill{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--outline);background:transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;text-decoration:none}
+.pill.on,.pill.main{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.pill.dark{background:#151515;border-color:#151515;color:#F2F2F2}
+.hero .pill{border-color:#151515;color:#151515}.hero .pill.dark{color:#F2F2F2}
+.pill:disabled{opacity:.5}
+.card .pill[style*="font-size:13px"]{min-height:34px;padding:0 12px;border-width:1px}
+.chips{display:flex;gap:4px;overflow-x:auto;padding:4px;background:var(--seg);border-radius:999px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{min-width:56px;min-height:52px;border-radius:16px;border:0;background:var(--card);color:var(--text);font-weight:600;font-size:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;padding:4px 10px}
+.chip small{font-size:11px;font-weight:500;color:var(--muted)}
+.chip.on{background:var(--accent);color:var(--on-accent)}.chip.on small{color:var(--on-accent)}
+.chips .chip{min-width:72px;flex:1 0 auto;min-height:38px;border-radius:999px;background:transparent;font-weight:500;font-size:13px;color:var(--muted);flex-direction:row;gap:4px;padding:0 12px}
+.chips .chip small{font-size:13px;color:inherit}
+.chips .chip.on{background:var(--segon);color:var(--text)}
+.chips .pill{min-height:38px;border:0;color:var(--muted)}.chips .pill.on{background:var(--segon);color:var(--text)}
+.badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;background:#151515;color:#F2F2F2}
+.badge:before{content:"";width:7px;height:7px;border-radius:50%;background:#BEE000}
+.badge svg{display:none}
+.badge.wip:before{background:#FFB020}
+.num{width:34px;height:34px;border-radius:999px;background:var(--card2);color:var(--text);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico{width:34px;height:34px;border-radius:999px;background:var(--card2);color:var(--accent-text);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.warn{color:var(--warn);font-size:12px;font-weight:600}
+.line{display:flex;align-items:center;gap:12px;min-height:46px;font-size:14px}
+.vago{display:inline-flex;align-items:center;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:700;background:var(--warnbg);color:var(--warn)}
+.gap .ico{color:var(--warn)}
+.bar{border-radius:16px;padding:11px 14px;font-size:13px;background:var(--card2)}
+.tom{text-align:right;min-width:44px;flex-shrink:0}.tom .k{font-size:28px;font-weight:300;color:var(--accent-text);line-height:1}.tom .b{font-size:10.5px;color:var(--muted);margin-top:3px}.tom .l{font-size:9px;font-weight:600;letter-spacing:.8px;color:var(--muted);margin-bottom:2px}
+.mini{width:36px;height:36px;border-radius:999px;background:var(--card2);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+nav{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(14px + env(safe-area-inset-bottom));display:flex;justify-content:center;pointer-events:none}
+nav div{pointer-events:auto;width:100%;max-width:448px;display:flex;justify-content:space-around;padding:8px 6px;border-radius:24px;background:var(--card);box-shadow:0 -10px 30px rgba(0,0,0,.45)}
+nav button{flex:1;height:50px;border-radius:16px;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:500;font-size:10.5px}
+nav button.on{color:var(--accent-text);font-weight:600}
+.sheet{position:fixed;inset:0;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);z-index:5;overflow:auto;padding:16px 16px 40px}
+.sheet>div{max-width:480px;margin:0 auto}
+input{font:inherit;color:var(--text);background:var(--seg);border:0;border-radius:999px;min-height:46px;padding:0 18px;width:100%}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;z-index:9}
+textarea{width:100%;min-height:180px;font:inherit;font-size:13px;color:var(--text);background:var(--seg);border:0;border-radius:16px;padding:12px}
+svg{flex-shrink:0}
+/* Movimento: leve, rápido e desligado para quem pede menos animação no celular */
+button,a.pill,.rb,.mini,.chip,.card,.hero{transition:transform .14s ease,background-color .22s ease,color .22s ease,opacity .2s ease}
+button:active,a.pill:active,.rb:active,.mini:active,.chip:active{transform:scale(.95)}
+.card:active,.hero:active{transform:scale(.985)}
+nav button svg{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+nav button.on svg{transform:translateY(-2px) scale(1.08)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rb.spin svg{animation:spin .7s linear infinite}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.enter>*{animation:enter .4s cubic-bezier(.2,.8,.2,1) both}
+.enter>*:nth-child(2){animation-delay:.03s}.enter>*:nth-child(3){animation-delay:.06s}.enter>*:nth-child(4){animation-delay:.09s}
+.enter>*:nth-child(5){animation-delay:.12s}.enter>*:nth-child(6){animation-delay:.15s}.enter>*:nth-child(n+7){animation-delay:.18s}
+@keyframes sheetIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.sheet.in{animation:sheetIn .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px) scale(.96)}to{opacity:1;transform:translate(-50%,0)}}
+.toast{animation:toastIn .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(190,224,0,.55)}100%{box-shadow:0 0 0 14px rgba(190,224,0,0)}}
+.rb.done{animation:pulse .7s ease-out}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><p class="muted">Carregando…</p></div>
+<script>
+var LOGO = 'M63.4328 75.8338C60.6965 75.8338 46.7895 75.8338 40.1351 75.8338C37.9971 75.8338 37.6847 75.8787 37.6829 73.7912C37.6744 64.3089 37.7611 56.5739 37.633 47.0933C37.5833 43.4059 37.2613 39.693 36.6908 36.0501C36.1461 32.5717 35.2177 29.1058 31.2324 27.6655C31.2978 27.4841 31.3632 27.3028 31.4286 27.1214C33.4092 27.295 35.3898 27.4686 37.6783 27.6692C37.6783 25.9259 37.6785 24.1974 37.6783 22.4689C37.678 20.4594 37.6926 18.4498 37.6738 16.4405C37.631 11.862 37.6726 8.36727 29.2096 8.36727C30.1598 7.89142 45.0791 2.53513 51.9738 0.24414C53.7581 -0.348742 54.1518 0.0928501 54.1409 2.06976C54.0297 22.2252 53.9096 42.3806 53.8118 62.5361C53.7818 68.717 54.7471 73.6958 60.9236 74.844C61.6907 74.9866 62.6522 75.2399 63.4328 75.2399C63.4328 75.5289 63.4328 75.6221 63.4328 75.8338ZM129.024 75.8338C119.092 75.8338 109.063 75.8338 99.1309 75.8338C99.1309 75.661 99.1309 75.4179 99.1309 75.24C104.277 75.24 105.244 72.88 105.272 69.939C105.359 60.5251 105.542 51.0959 105.114 41.6988C104.798 34.7586 101.784 31.2768 92.1625 33.1921C92.1625 32.9286 92.1625 32.6864 92.1625 32.6082C96.4039 30.0244 100.676 27.4462 105.841 27.2103C115.346 26.776 121.454 32.5512 121.611 42.3226C121.735 50.046 121.642 57.7728 121.65 65.4981C121.652 66.7541 121.647 68.0116 121.704 69.2656C121.849 72.433 123.519 75.24 129.024 75.24C129.018 75.4276 129.024 75.6404 129.024 75.8338ZM197.282 75.24C201.528 75.1509 203.403 72.6795 203.435 69.747C203.534 60.8268 203.493 51.9048 203.449 42.9837C203.443 41.9362 204.498 30.0445 190.096 33.1921C190.096 32.9513 190.096 32.8767 190.096 32.6725C195.564 29.0198 201.268 26.2767 208.157 27.497C214.326 28.5899 218.609 33.1684 219.311 39.5592C219.612 42.2966 219.621 45.0733 219.64 47.833C219.684 54.3672 219.641 60.9019 219.661 67.4363C219.678 72.8676 222.849 75.24 226.977 75.24C226.977 75.4099 226.977 75.6186 226.981 75.8338C217.099 75.8338 207.164 75.8338 197.282 75.8338C197.282 75.6559 197.282 75.4323 197.282 75.24ZM159.207 33.1921C159.207 32.9155 159.207 32.8131 159.207 32.6725C164.459 29.3186 170.002 26.5029 176.537 27.3581C182.904 28.1913 187.273 32.8052 187.722 39.6317C188.08 45.0741 187.952 50.5495 188.005 56.0106C188.045 60.2179 187.975 64.4267 188.055 68.6329C188.136 72.9104 190.185 75.24 194.471 75.24C194.471 75.4323 194.471 75.6335 194.471 75.8338C184.868 75.8338 175.092 75.8338 165.489 75.8338C165.489 75.6593 165.489 75.4022 165.489 75.24C169.755 75.24 171.638 72.8727 171.658 70.1247C171.725 60.5235 171.875 50.9123 171.52 41.3223C171.275 34.688 168.627 31.2917 159.207 33.1921ZM253.049 27.6887C249.844 27.6887 246.739 30.8876 246.205 34.076C245.673 37.255 246.896 39.8881 249.48 41.5482C252.847 43.7119 256.437 45.5418 259.994 47.3926C263.306 49.1155 266.628 50.7765 269.082 53.7219C272.581 57.9209 272.822 63.7514 269.657 68.2256C266.56 72.6054 262.025 74.4944 256.98 75.3337C254.667 75.7186 252.244 75.8599 249.859 75.8257C249.847 75.5881 249.847 75.439 249.844 75.24C253.028 75.24 257.052 72.5454 258.062 69.1224C259.081 65.6695 258.096 62.4305 255.198 60.4752C251.699 58.1142 247.814 56.3025 244.018 54.4105C240.659 52.7363 237.382 51.0058 235.14 47.8619C231.346 42.5415 232.84 35.0231 238.56 31.067C242.656 28.2346 246.061 27.2532 253.049 27.2532C253.049 27.4563 253.049 27.5485 253.049 27.6887ZM131.358 35.5281C132.341 35.1704 147.395 29.896 153.834 27.5912C155.923 26.9166 156.246 27.2961 156.248 29.4969C156.255 41.2396 156.252 52.9823 156.253 64.725C156.254 65.7925 156.254 66.8601 156.268 67.9275C156.331 72.9935 158.619 75.24 162.717 75.24C162.717 75.3985 162.717 75.596 162.717 75.8338C152.677 75.8338 142.549 75.8338 132.508 75.8338C132.508 75.6593 132.508 75.3873 132.508 75.24C137.654 75.24 139.925 72.9053 139.992 68.8243C140.133 60.287 140.157 51.7446 140.032 43.2072C139.969 38.9141 138.084 35.5281 131.358 35.5281ZM65.6135 75.24C70.8876 75.0625 73.0025 72.6001 73.0415 68.0778C73.1015 61.1078 73.0818 54.1368 73.0529 47.1665C73.0452 45.2909 73.044 43.3905 72.7539 41.5466C72.2757 38.507 71.2871 35.7756 65.0363 35.5232C65.6069 35.1158 79.7951 29.849 86.5124 27.6204C88.8648 26.8399 89.1263 27.1975 89.127 29.6416C89.1301 41.6359 89.1263 53.6302 89.1297 65.6245C89.13 66.7546 89.1341 67.886 89.1865 69.0144C89.3614 72.779 91.8649 75.24 95.7119 75.24C95.7119 75.4123 95.7119 75.6666 95.7119 75.8338C85.7063 75.8338 75.621 75.8338 65.6154 75.8338C65.6154 75.6638 65.6154 75.4207 65.6135 75.24ZM26.6541 27.5683C16.5146 33.4721 15.9802 43.2166 16.2943 53.1921C16.4472 58.0485 17.963 62.5973 21.044 66.4599C24.3348 70.5855 28.5033 72.7169 33.9233 71.6958C34.1983 71.6439 34.7773 71.5578 35.4455 71.4242C35.2796 71.6564 35.0536 71.9037 34.8548 72.1161C34.552 72.4395 34.2243 72.7415 33.8694 73.0065C27.6393 77.6584 20.9316 79.3013 13.4877 75.7611C4.04881 71.2721 -0.187246 63.5715 0.00633687 53.3198C0.28224 38.7085 12.2739 28.2508 26.3122 27.3284C26.404 27.3224 26.5052 27.4599 26.6541 27.5683ZM286.177 75.8302C281.149 75.8202 277.534 72.172 277.581 67.1548C277.626 62.2577 281.3 58.5675 286.144 58.5537C291.087 58.5396 294.82 62.2608 294.835 67.217C294.85 72.2258 291.217 75.8402 286.177 75.8302ZM247.67 68.1953C247.687 72.6657 244.464 75.8512 239.942 75.8346C235.581 75.8186 232.34 72.5689 232.345 68.217C232.351 63.8587 235.578 60.5924 239.923 60.5477C244.391 60.5018 247.654 63.7228 247.67 68.1953ZM263.536 41.7131C259.462 41.6931 256.395 38.6279 256.383 34.5639C256.371 30.405 259.476 27.2758 263.604 27.2866C267.749 27.2974 270.885 30.4198 270.885 34.5364C270.886 38.6252 267.703 41.7334 263.536 41.7131Z', LOGO_VB = '-1.18725 -1.34874 297.037 81.65';
+var P_SPOTIFY = 'M19.098 10.638c-3.868-2.297-10.248-2.508-13.941-1.387-.593.18-1.22-.155-1.399-.748-.18-.593.154-1.22.748-1.4 4.239-1.287 11.285-1.038 15.738 1.605.533.317.708 1.005.392 1.538-.316.533-1.005.709-1.538.392zm-.126 3.403c-.272.44-.847.578-1.287.308-3.225-1.982-8.142-2.557-11.958-1.399-.494.15-1.017-.129-1.167-.623-.149-.495.13-1.016.624-1.167 4.358-1.322 9.776-.682 13.48 1.595.44.27.578.847.308 1.286zm-1.469 3.267c-.215.354-.676.465-1.028.249-2.818-1.722-6.365-2.111-10.542-1.157-.402.092-.803-.16-.895-.562-.092-.403.159-.804.562-.896 4.571-1.045 8.492-.595 11.655 1.338.353.215.464.676.248 1.028zm-5.503-17.308c-6.627 0-12 5.373-12 12 0 6.628 5.373 12 12 12 6.628 0 12-5.372 12-12 0-6.627-5.372-12-12-12z', P_YT = 'M16.23 7.102c-2.002-.136-6.462-.135-8.461 0-2.165.148-2.419 1.456-2.436 4.898.017 3.436.27 4.75 2.437 4.898 1.999.135 6.459.136 8.461 0 2.165-.148 2.42-1.457 2.437-4.898-.018-3.436-.271-4.75-2.438-4.898zm-6.23 7.12v-4.444l4.778 2.218-4.778 2.226zm2-12.222c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z';
+var IC = {
+  bell: 'M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 0 0 4 0',
+  home: 'M4 11l8-7 8 7v9h-5v-6H9v6H4z', note: 'M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0a3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0a3 3 0 0 1 6 0z',
+  cal: 'M5 5h14v15H5zM5 10h14M9 3v4M15 3v4', sun: 'M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5',
+  moon: 'M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z', sync: 'M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4',
+  lock: 'M6 11h12v9H6zM9 11V8a3 3 0 0 1 6 0v3', up: 'M12 19V5M6 11l6-6 6 6', down: 'M12 5v14M6 13l6 6 6-6',
+  x: 'M6 6l12 12M18 6L6 18', swap: 'M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4', plus: 'M12 5v14M5 12h14',
+  check: 'M5 12l5 5 9-10', copy: 'M9 9h11v11H9zM5 15H4V4h11v1', pen: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  order: 'M8 20V5M4 9l4-4 4 4M16 4v15M12 15l4 4 4-4', back: 'M15 5l-7 7 7 7', send: 'M4 12l16-8-6 16-3-7z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L2.8 9.5l6.1-.9z',
+  mic: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3',
+  drum: 'M3 9a9 3 0 0 0 18 0a9 3 0 0 0-18 0zM3 9v7c0 1.7 4 3 9 3s9-1.3 9-3V9M7 4l5 5M17 4l-5 5',
+  str: 'M14 10l6-6M18 2l4 4M10.5 9.5a5 5 0 1 0 4 4M9 15h.01', keys: 'M3 6h18v12H3zM8 6v7M12 6v7M16 6v7',
+  user: 'M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',
+  doc: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6'
+};
+var DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+var MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+var CATS = ['Todas', 'Abertura', 'Intermediária', 'Ponto Alto'];
+var S = { data: null, tab: 'culto', date: '', theme: 'dark', leader: null, mode: 'view', draft: null, dirty: false,
+  picker: null, offline: false, busy: '', err: '', toast: '', ask: false, manual: '', month: '', newSongs: {}, loading: false, lastLoad: 0, draftKeys: {}, keyPick: null, me: '', pend: {}, escEdit: false, rolePick: null, draftBpm: {}, bpmPick: null, push: { state: '', endpoint: '', why: '', busy: '' } };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function ic(n, size, w) { return '<svg width="' + (size || 20) + '" height="' + (size || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + IC[n] + '"/></svg>'; }
+function brand(p, size) { return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" aria-hidden="true"><path d="' + p + '"/></svg>'; }
+// Quando o app roda dentro da página própria (a "casca"), o iPhone não deixa guardar nada aqui dentro.
+// Então quem guarda é a casca, e o app conversa com ela por mensagens.
+var TOP = null, BRIDGE = null;
+try { if (window.top !== window.self && location.ancestorOrigins && location.ancestorOrigins.length > 1) TOP = location.ancestorOrigins[location.ancestorOrigins.length - 1]; } catch (e) {}
+function topSend(msg) { if (TOP) { try { window.top.postMessage(msg, TOP); } catch (e) {} } }
+function cleanUrl(u) { return String(u || '').trim().toLowerCase().replace(/\/+$/, ''); }
+/** A casca é a página oficial cadastrada na aba Config? Só nela o código do líder fica guardado. */
+function shellOk() { return !!TOP && !!S.data && !!S.data.shell && cleanUrl(S.data.shell) === cleanUrl(TOP); }
+function store(k, v) {
+  if (v !== undefined && TOP && (k !== 'dnms_leader' || shellOk())) topSend({ dnms: 'set', k: k, v: v });
+  try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; }
+}
+function dt(iso) { var p = iso.split('-'); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); }
+function cap(t) { t = String(t || ''); return t.charAt(0).toUpperCase() + t.slice(1); }
+/** "29 NOV" */
+function curto(iso) { var d = dt(iso); return d.getDate() + ' ' + MESES[d.getMonth()].slice(0, 3).toUpperCase(); }
+/** Marca d'água "dnms" dos cartões em destaque. */
+function wm() { return '<svg class="wm" viewBox="' + LOGO_VB + '" fill="#000" aria-hidden="true"><path d="' + LOGO + '"/></svg>'; }
+function dm(iso) { var p = iso.split('-'); return p[2] + '/' + p[1]; }
+function longDate(iso) { var d = dt(iso); return DIAS[d.getDay()] + ', ' + d.getDate() + ' de ' + MESES[d.getMonth()]; }
+function days(a, b) { return Math.round((dt(b) - dt(a)) / 86400000); }
+function roleIcon(r) { r = r.toLowerCase(); return /l[ií]der/.test(r) ? 'star' : /voz|vocal|back/.test(r) ? 'mic' : /bater/.test(r) ? 'drum' : /tecl|piano/.test(r) ? 'keys' : /baixo|guit|viol/.test(r) ? 'str' : 'user'; }
+function nrm(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim(); }
+function inRep(t) { var s = S.data.songs, k = nrm(t); for (var i = 0; i < s.length; i++) if (nrm(s[i].t) === k) return s[i]; return null; }
+function quiet() { return !!S.picker || !!S.bpmPick || (S.ask && !S.leader); }
+function near(a, b) {
+  if (a === b) return true;
+  if (a.length < 4 || Math.abs(a.length - b.length) > 1) return false;
+  var i = 0, j = 0, d = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++d > 1) return false;
+    if (a.length > b.length) i++; else if (a.length < b.length) j++; else { i++; j++; }
+  }
+  return d + (a.length - i) + (b.length - j) <= 1;
+}
+/** O nome que aparece na escala é o da pessoa que escolheu "sou eu"? Tolera pequenas diferenças de grafia. */
+function isMe(n) {
+  if (!S.me || !n) return false;
+  var a = nrm(n).replace(/\./g, ''), b = nrm(S.me).replace(/\./g, '');
+  if (near(a, b)) return true;
+  if (b.indexOf(a + ' ') !== 0) return false;
+  var mesmos = (S.data.people || []).filter(function (p) { var k = nrm(p).replace(/\./g, ''); return k === a || k.indexOf(a + ' ') === 0; });
+  return mesmos.length === 1;
+}
+function same(a, b) { a = nrm(a).replace(/\./g, ''); b = nrm(b).replace(/\./g, ''); return !!a && !!b && (near(a, b) || a.indexOf(b + ' ') === 0 || b.indexOf(a + ' ') === 0); }
+/** Este líder pode mexer no setlist da data escolhida? O admin pode sempre. */
+function canEdit() { var l = leaderOfDay(); return !!S.leader && (S.leader.admin || !l || same(l, S.leader.name)); }
+function statusOf(d) { var s = S.data.setlists[d]; return !s || !s.items.length ? 'não montado' : s.status === 'Em montagem' ? 'em montagem' : 'confirmado'; }
+function myRoles(c) { return c.team.filter(function (p) { return isMe(p.n); }).map(function (p) { return p.r; }); }
+function myAvail(d) { return ((S.data.avail || {})[d] || {})[nrm(S.me)]; }
+function culto() { var c = S.data.cultos; for (var i = 0; i < c.length; i++) if (c[i].d === S.date) return c[i]; return null; }
+function setlist() { return S.data.setlists[S.date] || { status: '', by: '', at: '', items: [], keys: {} }; }
+function keyOf(t) { return (S.draft ? S.draftKeys : (setlist().keys || {}))[t] || ''; }
+function bpmOf(t) { return S.draft && S.draftBpm[t] !== undefined ? S.draftBpm[t] : (song(t).bpm || ''); }
+var NOTAS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+function song(t) { var s = S.data.songs; for (var i = 0; i < s.length; i++) if (s[i].t === t) return s[i]; var nv = S.newSongs[t]; return { t: t, a: nv ? nv.a : '', c: nv ? nv.c : '', sp: '', yt: '', last: '', n: 0, novo: !!nv }; }
+function leaderOfDay() { var c = culto(); if (!c) return ''; for (var i = 0; i < c.team.length; i++) if (/l[ií]der/i.test(c.team[i].r)) return c.team[i].n; return ''; }
+function ytId(u) { var m = String(u || '').match(/(?:v=|youtu\.be\/|\/shorts\/|\/live\/|\/embed\/)([\w-]{11})/); return m ? m[1] : ''; }
+function items() { return S.draft || setlist().items; }
+
+/** Texto de "quando foi tocada", em relação à data do culto escolhido. */
+function played(s) {
+  if (!s.last) return { txt: 'nunca tocada', recent: false, d: 9999 };
+  var d = days(s.last, S.date || S.data.today);
+  if (d <= 0) return { txt: 'tocada em ' + dm(s.last), recent: false, d: 9998 };
+  var txt = d <= 7 ? 'tocada no último domingo' : d < 14 ? 'tocada há ' + d + ' dias' : 'tocada há ' + Math.round(d / 7) + ' semanas';
+  return { txt: txt, recent: d <= 14, d: d };
+}
+
+function badge() {
+  var s = setlist();
+  if (!s.items.length) return '<span class="badge wip">Setlist ainda não montado</span>';
+  if (s.status === 'Em montagem') return '<span class="badge wip">Em montagem · ainda pode mudar</span>';
+  return '<span class="badge ok">' + ic('check', 14, 2.6) + 'Confirmado' + (s.by ? ' por ' + esc(s.by) : '') + '</span>';
+}
+
+/** Topo: logo, botões e o título da tela (parte leve + parte em destaque). */
+function header(title, eyebrow) {
+  return '<div class="row"><div class="grow row" style="gap:3px;align-items:baseline;color:var(--brand)"><svg height="24" viewBox="' + LOGO_VB + '" fill="currentColor" role="img" aria-label="dnms." style="margin-bottom:-1px"><path d="' + LOGO + '"/></svg>' +
+      '<span style="font-size:26.8px;line-height:1;font-weight:400;letter-spacing:-.4px;color:var(--accent-text)">gyn</span></div>' +
+    '<button class="rb" data-act="theme" aria-label="Mudar tema claro ou escuro">' + ic(S.theme === 'light' ? 'moon' : 'sun', 19) + '</button>' +
+    '<button class="rb' + (S.spin ? ' spin' : '') + (S.done ? ' done' : '') + '" data-act="reload" aria-label="Atualizar agora">' + ic('sync', 19) + '</button></div>' +
+    '<div style="margin-top:12px"><div class="dt">' + (eyebrow ? esc(eyebrow) + ' ' : '') + '<b>' + esc(title) + '</b></div>' +
+    '<div class="small muted" style="margin-top:3px">Atualizado em ' + esc(S.data.updatedAt) + (S.busy ? ' · ' + esc(S.busy) : '') + '</div></div>' +
+    (S.offline ? '<div class="bar">Sem internet. Mostrando a última versão salva neste aparelho (' + esc(S.data.updatedAt) + ').</div>' : '') +
+    (S.err ? '<div class="bar">' + esc(S.err) + '</div>' : '');
+}
+
+function dateChips() {
+  var c = S.data.cultos, out = '', n = 0;
+  for (var i = 0; i < c.length && n < 6; i++) {
+    if (c[i].d < S.data.today && c[i].d !== S.date) continue;
+    n++;
+    out += '<button class="chip' + (c[i].d === S.date ? ' on' : '') + '" data-act="date" data-arg="' + c[i].d + '">' + dt(c[i].d).getDate() + '<small>' + MESES[dt(c[i].d).getMonth()].slice(0, 3) + '</small></button>';
+  }
+  return '<div class="chips">' + out + '</div>';
+}
+
+function teamHtml(team, showGaps) {
+  var out = '';
+  team.forEach(function (p) {
+    if (!p.n && (!showGaps || p.u)) return;
+    out += p.n ? '<div class="line"><span class="ico">' + ic(roleIcon(p.r), 16) + '</span><span class="muted grow">' + esc(p.r) + '</span><b style="font-weight:600">' + esc(p.n) + '</b>' +
+        (showGaps && S.leader ? '<a class="rb" href="https://wa.me/?text=' + encodeURIComponent(conviteTexto(p.n)) + '" aria-label="Enviar acesso para ' + esc(p.n) + ' pelo WhatsApp" style="width:36px;height:36px;margin-left:6px">' + ic('send', 16) + '</a>' : '') + '</div>'
+      : '<div class="line gap"><span class="ico">' + ic(roleIcon(p.r), 16) + '</span><span class="muted grow">' + esc(p.r) + '</span><span class="vago">vago</span></div>';
+  });
+  return out || '<div class="muted small">Ninguém escalado ainda.</div>';
+}
+
+/** Link pessoal: abre o app já como esta pessoa, direto na página "Eu". */
+function conviteLink(nome) {
+  var base = String((S.data && S.data.shell) || 'https://victorrenanvc.github.io').replace(/\/+$/, '');
+  if (!/\/dnms-gyn$/.test(base)) base += '/dnms-gyn';
+  return base + '/?eu=' + encodeURIComponent(nome).replace(/\(/g, '%28').replace(/\)/g, '%29');
+}
+/** Mensagem pronta para o WhatsApp de quem está escalado no domingo aberto. */
+function conviteTexto(nome) {
+  var c = culto(), funcs = [];
+  (c ? c.team : []).forEach(function (p) { if (p.n === nome && funcs.indexOf(p.r) < 0) funcs.push(p.r); });
+  var primeiro = String(nome).split(/[\s(]/)[0];
+  return 'Oi, ' + primeiro + '! Você está na escala do domingo ' + S.date.slice(8, 10) + '/' + S.date.slice(5, 7) +
+    (funcs.length ? ' (' + funcs.join(' e ') + ')' : '') + '.' + (S.data.ensaio ? ' Ensaio: ' + S.data.ensaio + '.' : '') +
+    '\n\nAs músicas, os tons e a playlist estão aqui, é só tocar no link:\n' + conviteLink(nome);
+}
+
+function summaryText() {
+  var c = culto(), s = setlist(), L = [];
+  L.push('*Culto de ' + longDate(S.date) + '*');
+  L.push('');
+  if (s.items.length) {
+    L.push('*Setlist* (' + (s.status === 'Em montagem' ? 'em montagem, ainda pode mudar' : 'confirmado' + (s.by ? ' por ' + s.by : '')) + ')');
+    s.items.forEach(function (t, i) { var m = song(t); L.push((i + 1) + '. ' + t + (m.a ? ' (' + m.a + ')' : '') + (s.keys && s.keys[t] ? ' - tom ' + s.keys[t] : '')); });
+  } else L.push('*Setlist:* ainda não montado');
+  L.push('');
+  L.push('*Time de adoração*');
+  (c ? c.team : []).forEach(function (p) { if (!p.u) L.push(p.r + ': ' + (p.n || 'vago')); });
+  L.push('');
+  L.push('Atualizado em ' + S.data.updatedAt);
+  return L.join('\n');
+}
+
+function viewCulto() {
+  var c = culto(), s = setlist();
+  if (!c) return header('Culto', 'Sem cultos na escala') + '<p class="muted">Não encontrei datas na planilha de escala.</p>';
+  var txt = summaryText();
+  return header(curto(S.date), cap(DIAS[dt(S.date).getDay()]) + ',') + dateChips() +
+    '<button class="hero col" data-act="tab" data-arg="setlist" style="text-align:left;width:100%;border:0;font:inherit;gap:10px">' + wm() +
+      '<span class="kick">' + ic('note', 15) + 'Setlist</span><h1>' + s.items.length + ' músicas</h1><span>' + badge() + '</span>' +
+      '<span class="pill dark" style="width:100%">Ver setlist ' + ic('back', 16).replace('<svg', '<svg style="transform:rotate(180deg)"') + '</span></button>' +
+    '<div class="row"><h2 class="grow">Time de adoração</h2><span class="small muted">' + c.team.filter(function (p) { return p.n; }).length + ' escalados</span></div>' +
+    '<div class="card">' + teamHtml(c.team, true) + '</div>' +
+    '<div class="row"><button class="pill grow" data-act="copy">' + ic('copy', 18) + 'Copiar resumo do culto</button>' +
+    '<a class="pill" href="https://wa.me/?text=' + encodeURIComponent(txt) + '" aria-label="Enviar resumo no WhatsApp">' + ic('send', 18) + 'WhatsApp</a></div>' +
+    (S.manual ? '<div class="col" style="gap:6px"><div class="small muted">Não consegui copiar sozinho. Selecione o texto abaixo e copie:</div><textarea readonly>' + esc(S.manual) + '</textarea></div>' : '');
+}
+
+function songRow(t, i) {
+  var m = song(t), p = played(m), right = '';
+  if (S.mode === 'order') right = '<button class="rb" data-act="up" data-arg="' + i + '" aria-label="Subir">' + ic('up') + '</button><button class="rb" data-act="down" data-arg="' + i + '" aria-label="Descer">' + ic('down') + '</button>';
+  else if (S.mode === 'edit') right = '<button class="rb" data-act="pick" data-arg="' + i + '" aria-label="Trocar por outra música">' + ic('swap') + '</button><button class="rb" data-act="del" data-arg="' + i + '" aria-label="Remover" style="color:var(--accent-text)">' + ic('x') + '</button>';
+  else right = (m.sp ? '<a class="mini" href="' + esc(m.sp) + '" aria-label="Ouvir no Spotify" style="color:#1ED760">' + brand(P_SPOTIFY, 17) + '</a>' : '') + (m.yt ? '<a class="mini" href="' + esc(m.yt) + '" aria-label="Ouvir no YouTube" style="color:#FF4D4D">' + brand(P_YT, 17) + '</a>' : '');
+  var k = keyOf(t), ref = [m.tm ? 'voz masculina ' + esc(m.tm) : '', m.tf ? 'voz feminina ' + esc(m.tf) : ''].filter(Boolean).join(' · ');
+  var tom = (k ? '' : ref ? 'Tom ainda não definido (repertório: ' + ref + ') · ' : '');
+  var tomBox = '<div class="tom" aria-label="' + (k ? 'Tom deste domingo: ' + esc(k) : 'Tom a definir') + '"><div class="l">TOM</div><div class="k">' + (k ? esc(k) : '–') + '</div>' + (bpmOf(t) ? '<div class="b">' + esc(bpmOf(t)) + ' BPM</div>' : '') + '</div>';
+  var keyBtn = (canEdit() ? '<button class="pill" data-act="key" data-arg="' + i + '" style="font-size:13px">' + (k ? 'Tom ' + esc(k) + ' · mudar' : 'Definir tom') + '</button>' +
+      '<button class="pill" data-act="bpm" data-arg="' + i + '" style="font-size:13px">' + (bpmOf(t) ? esc(bpmOf(t)) + ' BPM · mudar' : 'Definir BPM') + '</button>' : '') +
+    (m.cf ? '<a class="pill" href="' + esc(m.cf) + '" style="font-size:13px">' + ic('doc', 16) + 'Cifra</a>' : '');
+  if (keyBtn) keyBtn = '<div class="row" style="margin-top:6px;flex-wrap:wrap;gap:8px">' + keyBtn + '</div>';
+  return '<div class="card row" style="padding:12px;align-items:flex-start"><span class="num" style="margin-top:2px">' + (i + 1) + '</span><div class="grow"><b class="t" style="font-weight:600;font-size:15px">' + esc(t) + '</b><div class="small muted">' + esc(m.a) + (m.a ? ' · ' : '') + esc(m.c || 'sem categoria') + '</div>' +
+    ((tom || m.novo) ? '<div class="small" style="color:var(--accent-text);margin-top:2px">' + tom + (m.novo ? 'nova, entra no repertório ao salvar' : '') + '</div>' : '') +
+    (canEdit() && p.recent ? '<div class="warn">Atenção: ' + p.txt + '</div>' : '') + keyBtn + '</div><div class="row" style="gap:6px;align-self:center">' + right + '</div>' + (S.mode === 'view' || !S.mode ? tomBox : '') + '</div>';
+}
+
+function viewBpm() {
+  var K = S.bpmPick, t = items()[K.i];
+  return '<div class="sheet"><div class="col"><div class="row"><button class="rb" data-act="bpmclose" aria-label="Voltar">' + ic('back') + '</button><div class="grow"><div class="small muted">Andamento (BPM)</div><h2>' + esc(t) + '</h2></div></div>' +
+    '<div class="row"><button class="rb" data-act="bpmstep" data-arg="-1" aria-label="Diminuir 1">' + ic('down') + '</button>' +
+    '<input id="bpm" name="dnms-bpm" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="BPM" value="' + esc(K.v) + '" style="text-align:center;font-family:Manrope,sans-serif;font-weight:800;font-size:28px;min-height:64px">' +
+    '<button class="rb" data-act="bpmstep" data-arg="1" aria-label="Aumentar 1">' + ic('up') + '</button></div>' +
+    '<button class="pill main" data-act="bpmtap" style="min-height:96px;border-radius:24px;font-size:16px;flex-direction:column;gap:2px"><span>Toque aqui no ritmo da música</span><span class="small" style="font-weight:400">' + (K.t && K.t.length > 1 ? K.t.length + ' toques · continue para afinar' : 'bata pelo menos 4 vezes, no tempo') + '</span></button>' +
+    '<div class="row"><button class="pill grow" data-act="bpmset" data-arg="clear">Deixar sem BPM</button><button class="pill main grow" data-act="bpmset" data-arg="ok">' + ic('check', 18, 2.4) + 'Usar este BPM</button></div>' +
+    '<div class="small muted">O BPM fica guardado na música, na planilha de repertório, e vale para os próximos cultos também. Ele é gravado quando você salvar o setlist.</div></div></div>';
+}
+
+function viewKey() {
+  var K = S.keyPick, t = items()[K.i], cur = keyOf(t).replace(/m$/, '');
+  return '<div class="sheet"><div class="col"><div class="row"><button class="rb" data-act="kclose" aria-label="Voltar">' + ic('back') + '</button><div class="grow"><div class="small muted">Tom da música</div><h2>' + esc(t) + '</h2></div></div>' +
+    ((song(t).tm || song(t).tf) ? '<div class="small muted">Tons do repertório</div><div class="row" style="gap:8px">' +
+      (song(t).tm ? '<button class="pill grow' + (keyOf(t) === song(t).tm ? ' on' : '') + '" data-act="kfull" data-arg="' + esc(song(t).tm) + '" style="min-height:56px">Voz masculina · ' + esc(song(t).tm) + '</button>' : '') +
+      (song(t).tf ? '<button class="pill grow' + (keyOf(t) === song(t).tf ? ' on' : '') + '" data-act="kfull" data-arg="' + esc(song(t).tf) + '" style="min-height:56px">Voz feminina · ' + esc(song(t).tf) + '</button>' : '') +
+      '</div><div class="small muted">Ou escolha outro tom:</div>' : '') +
+    '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">' + NOTAS.map(function (n) { return '<button class="chip' + (cur === n ? ' on' : '') + '" data-act="kset" data-arg="' + n + '" style="min-width:0;min-height:56px;font-size:18px">' + n + (K.minor ? 'm' : '') + '</button>'; }).join('') + '</div>' +
+    '<div class="row"><button class="pill grow' + (K.minor ? ' on' : '') + '" data-act="kminor">Tom menor (m)</button><button class="pill grow" data-act="kclear">Deixar sem tom</button></div>' +
+    '<div class="small muted">O tom vale para este culto. Na próxima vez que este líder usar a música, o app já sugere o mesmo tom.</div></div></div>';
+}
+
+function viewSetlist() {
+  var s = setlist(), list = items(), ids = [];
+  list.forEach(function (t) { var id = ytId(song(t).yt); if (id) ids.push(id); });
+  var lead = leaderOfDay();
+  var hero = '<div class="hero col" style="gap:10px">' + wm() + '<div><div class="kick">' + ic('note', 15) + 'Setlist</div>' +
+    '<h1 style="margin-top:4px">' + (lead ? esc(lead) + ' lidera' : 'Setlist') + '</h1><div class="small" style="font-weight:500;opacity:.75;margin-top:2px">' + list.length + ' músicas</div></div>' +
+    '<div>' + badge() + '</div>' +
+    ((S.data.spotify || ids.length) ? '<div class="small" style="font-weight:500;opacity:.75;margin-top:2px">Ouvir a playlist inteira</div><div class="row" style="gap:8px">' +
+      (S.data.spotify ? '<a class="pill dark grow" href="' + esc(S.data.spotify) + '" aria-label="Playlist no Spotify"><span style="color:#1ED760;display:flex">' + brand(P_SPOTIFY, 18) + '</span>Spotify</a>' : '') +
+      (ids.length ? '<a class="pill grow" href="https://www.youtube.com/watch_videos?video_ids=' + ids.join(',') + '" aria-label="Playlist no YouTube">' + brand(P_YT, 18) + 'YouTube</a>' : '') + '</div>' : '') + '</div>';
+  var tools = '';
+  if (!S.leader) {
+    tools = S.ask ? '<form class="card col" data-form="code"><label class="small muted" for="code">Código do líder (4 dígitos)</label><div class="row"><input id="code" name="dnms-codigo-lider" inputmode="numeric" maxlength="4" autocomplete="off"><button class="pill main" type="submit">Entrar</button></div></form>'
+      : '<div class="row"><h2 class="grow">Músicas</h2><button class="pill" data-act="ask">' + ic('lock', 18) + 'Sou líder</button></div>';
+  } else if (!canEdit()) {
+    tools = '<h2>Músicas</h2><div class="small muted">Modo líder: ' + esc(S.leader.name) + '. Este domingo é de ' + esc(lead) + ', então só ' + esc(lead) + ' ou o admin alteram este setlist. <button data-act="logout" style="border:0;background:none;text-decoration:underline;padding:0;min-height:24px">sair</button></div>';
+  } else {
+    tools = '<div class="row"><h2 class="grow">Músicas</h2><button class="pill' + (S.mode === 'order' ? ' on' : '') + '" data-act="mode" data-arg="order">' + ic('order', 18) + 'Ordenar</button><button class="pill' + (S.mode === 'edit' ? ' on' : '') + '" data-act="mode" data-arg="edit">' + ic('pen', 18) + 'Editar</button></div>' +
+      '<div class="small muted">Modo ' + (S.leader.admin ? 'admin' : 'líder') + ': ' + esc(S.leader.name) + ' · <button data-act="logout" style="border:0;background:none;text-decoration:underline;padding:0;min-height:24px">sair</button></div>';
+  }
+  var rows = list.map(songRow).join('') || '<div class="card muted">Nenhuma música neste setlist ainda.</div>';
+  var foot = '';
+  if (canEdit()) {
+    var rec = list.filter(function (t) { return played(song(t)).recent; }).length;
+    foot = (S.mode === 'edit' || !list.length ? '<button class="pill" data-act="pick" data-arg="-1" style="border-style:dashed;border-color:var(--accent);color:var(--accent-text)">' + ic('plus', 18) + 'Adicionar música do repertório</button>' : '') +
+      (rec ? '<div class="bar">' + rec + (rec > 1 ? ' músicas foram tocadas' : ' música foi tocada') + ' nos últimos 14 dias. Você pode confirmar assim mesmo.</div>' : '') +
+      (S.dirty ? '<div class="small warn">Há alterações que ainda não foram salvas.</div>' : '') +
+      '<div class="row"><button class="pill grow" data-act="save" data-arg="0"' + (list.length && S.dirty ? '' : ' disabled') + '>Salvar rascunho</button>' +
+      '<button class="pill main grow" data-act="save" data-arg="1"' + (list.length ? '' : ' disabled') + '>' + ic('check', 18, 2.4) + 'Confirmar setlist</button></div>';
+  } else if (!s.items.length) foot = '<div class="small muted">O líder do dia ainda não montou o setlist.</div>';
+  return header(curto(S.date), cap(DIAS[dt(S.date).getDay()]) + ',') + dateChips() + hero + tools + rows + foot;
+}
+
+function viewLembretes() {
+  var p = S.push, h = '<h2>Lembretes</h2>';
+  if (p.busy) return h + '<div class="card small muted">' + esc(p.busy) + '</div>';
+  if (p.state === 'granted' && p.endpoint) return h + '<div class="card col" style="gap:10px"><div class="row" style="gap:8px"><span style="color:var(--ok)">' + ic('check', 18, 2.6) + '</span><b class="grow">Lembretes ativados neste aparelho</b></div><div class="small muted">Você recebe avisos da sua escala, do ensaio e da disponibilidade.</div></div>';
+  if (p.state === 'denied') return h + '<div class="card small muted">As notificações do dnms.gyn estão bloqueadas neste aparelho. Para liberar, abra os Ajustes do celular, procure Notificações e ative o dnms.gyn.</div>';
+  if (p.state === 'default' || p.state === 'granted') return h + '<div class="card col" style="gap:10px"><div class="small muted">Receba avisos no celular da sua escala, do ensaio e da disponibilidade.</div><button class="pill main" data-act="pushon" style="align-self:flex-start">' + ic('bell', 18) + 'Ativar lembretes</button></div>';
+  return h + '<div class="card small muted">' + (p.why === 'install' ? 'Para receber lembretes no iPhone, instale o app na tela de início (Compartilhar, depois Adicionar à Tela de Início) e abra pelo ícone.' : 'Os lembretes funcionam com o app instalado na tela inicial do celular e aberto pelo ícone.') + '</div>';
+}
+function viewEu() {
+  var people = S.data.people || [];
+  if (!S.me) {
+    return header('Quem é você?', '') + '<div class="small muted">Toque no seu nome. O app guarda a escolha neste aparelho.</div>' +
+      (people.length ? people.map(function (p) { return '<button class="card row" data-act="me" data-arg="' + esc(p) + '" style="width:100%;text-align:left;min-height:48px"><span style="color:var(--accent)">' + ic('user', 18) + '</span><b class="grow">' + esc(p) + '</b></button>'; }).join('')
+        : '<p class="muted">Não encontrei a lista de pessoas na planilha de escala.</p>');
+  }
+  var first = S.me.split(' ')[0], today = S.data.today;
+  var up = S.data.cultos.filter(function (c) { return c.d >= today && myRoles(c).length; });
+  var out = header(first, 'Olá,') +
+    '<div class="small muted">Não é ' + esc(first) + '? <button data-act="notme" style="border:0;background:none;text-decoration:underline;padding:0;min-height:24px">trocar de pessoa</button></div>';
+  if (up.length) {
+    var c = up[0], keep = S.date; S.date = c.d; var b = badge(); S.date = keep;
+    out += '<div class="hero col">' + wm() + '<div><div class="kick">Você está escalado</div><h1 style="font-size:24px">' + esc(myRoles(c).join(' e ')) + '</h1><div class="small">' + esc(longDate(c.d)) + '</div></div>' +
+      (S.data.ensaio ? '<div class="row" style="gap:6px;font-weight:700">' + ic('cal', 18) + 'Ensaio: ' + esc(S.data.ensaio) + '</div>' : '') +
+      '<div>' + b + '</div>' + (S.data.setlists[c.d] || { items: [] }).items.map(function (t, i) { var sl = S.data.setlists[c.d], m = song(t);
+        return '<div class="row" style="gap:8px;min-height:44px"><b>' + (i + 1) + '.</b><span class="grow">' + esc(t) + (sl.keys && sl.keys[t] ? ' · <b>tom ' + esc(sl.keys[t]) + '</b>' : '') + '</span>' + (m.cf ? '<a href="' + esc(m.cf) + '" style="font-weight:700;min-height:44px;display:inline-flex;align-items:center">Cifra</a>' : '') + '</div>'; }).join('') +
+      '<button class="pill dark" data-act="gosetlist" data-arg="' + c.d + '">' + ic('note', 18) + 'Ver setlist</button></div>';
+    if (up.length > 1) out += '<h2>Próximas escalas</h2><div class="card">' + up.slice(1).map(function (x) { return '<div class="line"><b>' + dm(x.d) + '</b><span class="muted grow">' + esc(DIAS[dt(x.d).getDay()]) + '</span><span>' + esc(myRoles(x).join(' e ')) + '</span></div>'; }).join('') + '</div>';
+  } else out += '<div class="card muted">Você não está escalado nos próximos cultos.</div>';
+  if (S.leader) {
+    var mine = S.data.cultos.filter(function (x) { if (x.d < today) return false; var l = ''; x.team.forEach(function (p) { if (!l && p.n && /l[ií]der/i.test(p.r)) l = p.n; }); x._l = l; return S.leader.admin || (l && same(l, S.leader.name)); }).slice(0, 6);
+    out += '<h2>' + (S.leader.admin ? 'Setlists dos próximos domingos' : 'Seus domingos como líder') + '</h2>' +
+      (mine.length ? '<div class="col" style="gap:8px">' + mine.map(function (x) { var st = statusOf(x.d);
+        return '<button class="card row" data-act="gosetlist" data-arg="' + x.d + '" style="width:100%;text-align:left;min-height:48px"><b>' + dm(x.d) + '</b><span class="grow muted">' + (S.leader.admin ? esc(x._l || 'sem líder') : '') + '</span><span class="small" style="font-weight:700;color:' + (st === 'confirmado' ? 'var(--ok)' : 'var(--accent-text)') + '">' + st + '</span>' + ic('back', 16).replace('<svg', '<svg style="transform:rotate(180deg)"') + '</button>'; }).join('') + '</div>'
+        : '<div class="card muted small">Você não lidera nenhum dos próximos domingos.</div>');
+  } else out += '<button class="pill" data-act="ask" style="align-self:flex-start">' + ic('lock', 18) + 'Entrar como líder</button>';
+  out += viewLembretes();
+  var months = {}, order = [];
+  Object.keys(S.data.avail || {}).sort().forEach(function (d) { if (d < today) return; var k = d.slice(0, 7); if (!months[k]) { months[k] = []; order.push(k); } months[k].push(d); });
+  // Convidado (fora da lista de disponibilidade de todos os meses): não mostra essa parte.
+  if (order.some(function (k) { return months[k].some(function (d) { return myAvail(d) !== undefined; }); })) order.forEach(function (k) {
+    out += '<h2>Disponibilidade em ' + MESES[Number(k.slice(5)) - 1] + '</h2>';
+    if (months[k].every(function (d) { return myAvail(d) === undefined; })) { out += '<div class="card muted small">Seu nome não está na lista de disponibilidade deste mês. Fale com quem monta a escala.</div>'; return; }
+    out += '<div class="small muted">Toque em cada domingo para dizer se pode ou não.</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">' + months[k].map(function (d) {
+      var st = myAvail(d), day = dt(d).getDate();
+      if (st === 'Disponível') return '<button class="chip on" data-act="avail" data-arg="' + d + '" aria-label="Dia ' + day + ': posso. Toque para mudar" style="min-width:0;min-height:68px">' + day + '<small>' + ic('check', 14, 2.6) + ' Posso</small></button>';
+      if (st === 'Indisponível') return '<button class="chip" data-act="avail" data-arg="' + d + '" aria-label="Dia ' + day + ': não posso. Toque para mudar" style="min-width:0;min-height:68px;color:var(--muted)"><span style="text-decoration:line-through">' + day + '</span><small>Não posso</small></button>';
+      return '<button class="chip" data-act="avail" data-arg="' + d + '" aria-label="Dia ' + day + ': sem resposta. Toque para responder" style="min-width:0;min-height:68px;border-style:dashed;border-color:var(--accent)">' + day + '<small style="color:var(--accent-text)">Responder</small></button>';
+    }).join('') + '</div>';
+  });
+  return out;
+}
+
+function suggestions(pool) {
+  var rested = pool.filter(function (m) { return m.last && played(m).d > 14; }).sort(function (a, b) { return played(a).d - played(b).d; });
+  var never = pool.filter(function (m) { return !m.last; });
+  var out = rested.slice(0, 4).concat(never.slice(0, 2));
+  var rest = rested.slice(4).concat(never.slice(2));
+  while (out.length < 6 && rest.length) out.push(rest.shift());
+  return out;
+}
+
+function pickRow(m) {
+  var p = played(m);
+  return '<button class="card row" data-act="choose" data-arg="' + esc(m.t) + '" style="width:100%;text-align:left"><span class="grow"><b class="t">' + esc(m.t) + '</b><div class="small muted">' + esc(m.a) + (m.c ? ' · ' + esc(m.c) : '') + '</div>' +
+    '<div class="small ' + (p.recent ? 'warn' : 'muted') + '">' + (p.recent ? 'Atenção: ' : '') + p.txt + (m.n ? ' · ' + m.n + 'x em 3 meses' : '') + '</div></span>' + ic('plus', 18) + '</button>';
+}
+
+function newSongForm() {
+  var f = S.picker.form;
+  return '<div class="card col"><div><div class="small muted">Música nova</div><b class="t">' + esc(f.t) + '</b></div>' +
+    '<label class="small muted" for="na">Artista ou ministério (opcional)</label><input id="na" name="dnms-artista" autocomplete="off" value="' + esc(f.a) + '">' +
+    '<div class="small muted">Categoria (opcional)</div><div class="chips">' + CATS.slice(1).map(function (c) { return '<button class="pill' + (f.c === c ? ' on' : '') + '" data-act="ncat" data-arg="' + c + '" style="flex-shrink:0">' + c + '</button>'; }).join('') + '</div>' +
+    '<div class="small muted">Ela entra na planilha de repertório quando você salvar o setlist. Os links do Spotify e do YouTube ficam para completar depois.</div>' +
+    '<div class="row"><button class="pill grow" data-act="nocancel">Cancelar</button><button class="pill main grow" data-act="noadd">' + ic('plus', 18) + 'Adicionar ao setlist</button></div></div>';
+}
+
+function pickerList() {
+  var P = S.picker, used = items(), q = nrm(P.q);
+  if (P.form) return newSongForm();
+  var pool = S.data.songs.filter(function (m) {
+    if (used.indexOf(m.t) >= 0) return false;
+    if (P.cat !== 'Todas' && nrm(m.c).indexOf(nrm(P.cat)) < 0) return false;
+    return !q || nrm(m.t + ' ' + m.a).indexOf(q) >= 0;
+  });
+  if (q) {
+    var exact = inRep(P.q), inList = used.some(function (t) { return nrm(t) === q; });
+    var add = inList ? '<div class="small muted">Essa música já está no setlist.</div>'
+      : exact ? '' : '<div class="small muted">' + (pool.length ? 'Confira se não é uma das músicas acima. Se não for:' : 'Não achei essa música no repertório.') + '</div>' +
+        '<button class="pill" data-act="newsong" style="border-style:dashed;border-color:var(--accent);color:var(--accent-text);min-height:48px;height:auto;padding:8px 14px">' + ic('plus', 18) + '<span>Adicionar “' + esc(P.q.trim()) + '” como música nova</span></button>';
+    return pool.map(pickRow).join('') + add;
+  }
+  if (!pool.length) return '<p class="muted">Nenhuma música encontrada.</p>';
+  var sug = suggestions(pool), rest = pool.filter(function (m) { return sug.indexOf(m) < 0; });
+  return '<h2>Sugestões</h2>' + sug.map(pickRow).join('') + (rest.length ? '<h2 style="margin-top:6px">Todas (' + rest.length + ')</h2>' + rest.map(pickRow).join('') : '');
+}
+
+function viewPicker() {
+  var P = S.picker;
+  return '<div class="sheet"><div class="col"><div class="row"><button class="rb" data-act="closepick" aria-label="Voltar">' + ic('back') + '</button><h2 class="grow">' + (P.i < 0 ? 'Adicionar música' : 'Trocar música ' + (P.i + 1)) + '</h2></div>' +
+    '<div class="chips">' + CATS.map(function (c) { return '<button class="pill' + (P.cat === c ? ' on' : '') + '" data-act="cat" data-arg="' + c + '" style="flex-shrink:0">' + c + '</button>'; }).join('') + '</div>' +
+    '<input id="q" type="search" name="dnms-busca-musica" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Buscar por nome ou artista" aria-label="Buscar música" value="' + esc(P.q) + '">' +
+    '<div id="plist" class="col" style="gap:8px">' + pickerList() + '</div></div></div>';
+}
+
+function viewEscala() {
+  var c = S.data.cultos, months = [], seen = {};
+  c.forEach(function (x) { var k = x.d.slice(0, 7); if (!seen[k]) { seen[k] = 1; months.push(k); } });
+  if (!S.month || !seen[S.month]) S.month = (S.date || S.data.today).slice(0, 7);
+  if (!seen[S.month] && months.length) S.month = months[months.length - 1];
+  var list = c.filter(function (x) { return x.d.slice(0, 7) === S.month; });
+  var cur = null; list.forEach(function (x) { if (x.d === S.date) cur = x; });
+  if (!cur && list.length) { cur = list[0]; list.forEach(function (x) { if (!cur || (cur.d < S.data.today && x.d >= S.data.today)) cur = x; }); }
+  var mi = Number(S.month.slice(5)) - 1;
+  return header(cap(MESES[mi]), 'Escala de') +
+    '<div class="chips">' + months.map(function (k) { return '<button class="pill' + (k === S.month ? ' on' : '') + '" data-act="month" data-arg="' + k + '" style="flex-shrink:0">' + MESES[Number(k.slice(5)) - 1] + '</button>'; }).join('') + '</div>' +
+    '<div class="chips">' + list.map(function (x) { return '<button class="chip' + (cur && x.d === cur.d ? ' on' : '') + '" data-act="edate" data-arg="' + x.d + '">' + dt(x.d).getDate() + '<small>' + DIAS[dt(x.d).getDay()].slice(0, 3) + '</small></button>'; }).join('') + '</div>' +
+    (cur ? '<div class="row"><span class="small muted grow">' + esc(longDate(cur.d)) + '</span>' +
+      (S.leader && S.leader.admin ? '<button class="pill' + (S.escEdit ? ' on' : '') + '" data-act="escedit">' + ic('pen', 18) + (S.escEdit ? 'Concluir' : 'Editar escala') + '</button>' : '') + '</div>' +
+      (S.escEdit && S.leader && S.leader.admin ? '<div class="small muted">Toque em uma função para trocar a pessoa ou deixar vago.</div><div class="col" style="gap:8px">' + cur.team.map(function (p) {
+        return '<button class="card row" data-act="role" data-arg="' + cur.d + '|' + p.i + '" style="width:100%;text-align:left;min-height:48px"><span style="color:var(--accent)">' + ic(roleIcon(p.r), 18) + '</span><span class="muted grow">' + esc(p.r) + '</span><b' + (p.n ? '' : ' style="color:var(--accent-text)"') + '>' + esc(p.n || 'vago') + '</b>' + ic('pen', 16) + '</button>';
+      }).join('') + '</div>' : '<div class="card">' + teamHtml(cur.team, true) + '</div>') : '<p class="muted">Sem datas neste mês.</p>') +
+    (!S.leader ? '<button class="pill" data-act="ask" style="align-self:flex-start">' + ic('lock', 18) + 'Entrar como líder</button>' : '');
+}
+
+function viewRolePick() {
+  var R = S.rolePick, c = null, p = null;
+  S.data.cultos.forEach(function (x) { if (x.d === R.d) c = x; });
+  c.team.forEach(function (x) { if (x.i === R.i) p = x; });
+  var av = (S.data.avail || {})[R.d] || {}, ordem = { 'Disponível': 0, 'Pendente': 1, 'Indisponível': 2 };
+  var people = (S.data.people || []).slice().sort(function (a, b) { var x = ordem[av[nrm(a)]], y = ordem[av[nrm(b)]]; x = x == null ? 1 : x; y = y == null ? 1 : y; return x - y || (nrm(a) < nrm(b) ? -1 : 1); });
+  return '<div class="sheet"><div class="col"><div class="row"><button class="rb" data-act="roleclose" aria-label="Voltar">' + ic('back') + '</button><div class="grow"><div class="small muted">' + esc(longDate(R.d)) + '</div><h2>' + esc(p.r) + (p.n ? ': ' + esc(p.n) : ': vago') + '</h2></div></div>' +
+    '<button class="pill" data-act="setrole" data-arg="" style="border-style:dashed;border-color:var(--accent);color:var(--accent-text)">Deixar vago</button>' +
+    people.map(function (n) { var st = av[nrm(n)] || 'sem resposta';
+      return '<button class="card row" data-act="setrole" data-arg="' + esc(n) + '" style="width:100%;text-align:left;min-height:48px"><b class="grow">' + esc(n) + '</b><span class="small ' + (st === 'Disponível' ? '' : 'muted') + '"' + (st === 'Disponível' ? ' style="color:var(--ok);font-weight:700"' : '') + '>' + esc(st.toLowerCase()) + '</span></button>'; }).join('') + '</div></div>';
+}
+
+function render() {
+  var el = document.getElementById('app');
+  document.documentElement.setAttribute('data-theme', S.theme);
+  if (!S.data) { el.innerHTML = '<p class="muted">' + esc(S.err || 'Carregando…') + '</p>' + (S.err ? '<button class="pill" data-act="reload">Tentar de novo</button>' : ''); return; }
+  var body = S.tab === 'setlist' ? viewSetlist() : S.tab === 'escala' ? viewEscala() : S.tab === 'eu' ? viewEu() : viewCulto();
+  var tabs = [['culto', 'home', 'Culto'], ['setlist', 'note', 'Setlist'], ['escala', 'cal', 'Escala'], ['eu', 'user', 'Eu']];
+  var sheets = (S.picker ? viewPicker() : '') + (S.keyPick ? viewKey() : '') + (S.bpmPick ? viewBpm() : '') + (S.rolePick ? viewRolePick() : '');
+  var sk = (S.picker ? 'p' : '') + (S.keyPick ? 'k' : '') + (S.bpmPick ? 'b' : '') + (S.rolePick ? 'r' : '');
+  if (sk && sk !== S._sk) sheets = sheets.replace('class="sheet"', 'class="sheet in"');
+  S._sk = sk;
+  var cls = S.anim ? 'col enter' : 'col'; S.anim = false;
+  el.innerHTML = '<div class="' + cls + '">' + body + '</div><nav><div>' + tabs.map(function (t) { return '<button class="' + (S.tab === t[0] ? 'on' : '') + '" data-act="tab" data-arg="' + t[0] + '">' + ic(t[1]) + t[2] + '</button>'; }).join('') + '</div></nav>' +
+    sheets + (S.toast ? '<div class="toast" role="status">' + esc(S.toast) + '</div>' : '');
+  persist();
+}
+
+function persist() { try { sessionStorage.setItem('dnms_sess', JSON.stringify({ leader: S.leader, date: S.date, draft: S.draft, dirty: S.dirty, mode: S.mode, newSongs: S.newSongs, draftKeys: S.draftKeys, draftBpm: S.draftBpm })); } catch (e) {} }
+
+/** Atualiza a tela sem atrapalhar quem está digitando. */
+function refresh() {
+  if (S.picker) { var pl = document.getElementById('plist'); if (pl && !S.picker.form) pl.innerHTML = pickerList(); }
+  else if (!quiet()) render();
+}
+
+function toast(t) { S.toast = t; render(); setTimeout(function () { S.toast = ''; if (!quiet()) render(); }, 2200); }
+
+function onData(d, fromCache) {
+  var primeira = !S.data;
+  S.data = d; S.busy = ''; S.err = ''; S.loading = false;
+  if (primeira) S.anim = true;
+  if (S.spin && !fromCache) { S.spin = false; S.done = true; S.anim = true; S.toast = 'Tudo atualizado'; setTimeout(function () { S.done = false; S.toast = ''; if (!quiet()) render(); }, 1600); }
+  if (!fromCache) { S.offline = false; store('dnms_data', JSON.stringify(d)); }
+  var ok = false;
+  d.cultos.forEach(function (c) { if (c.d === S.date) ok = true; });
+  if (!ok) { resetEdit(); S.date = ''; d.cultos.forEach(function (c) { if (!S.date && c.d >= d.today) S.date = c.d; }); if (!S.date && d.cultos.length) S.date = d.cultos[d.cultos.length - 1].d; }
+  Object.keys(S.newSongs).forEach(function (t) { if (inRep(t)) delete S.newSongs[t]; });
+  applyBridge();
+  Object.keys(S.pend).forEach(function (k) { var p = S.pend[k]; d.avail = d.avail || {}; (d.avail[p.d] || (d.avail[p.d] = {}))[nrm(p.who)] = p.st; });
+  refresh();
+}
+
+function onFail(e) {
+  S.busy = ''; S.loading = false; S.spin = false;
+  var msg = e && e.message ? e.message : String(e || '');
+  if (S.data && (!navigator.onLine || /network|rede|connection|failed/i.test(msg))) S.offline = true;
+  else if (!S.data) S.err = msg || 'Não consegui carregar os dados.';
+  refresh();
+  if (!S.data) render();
+}
+
+function verifyLeader() {
+  var run = server();
+  if (!run || !S.leader || !S.leader.code) return;
+  var cod = S.leader.code;
+  run.withSuccessHandler(function (r) { S.leader = { name: r.name, code: cod, admin: !!r.admin }; store('dnms_leader', JSON.stringify(S.leader)); refresh(); })
+    .withFailureHandler(function (e) { if (/c[oó]digo/i.test(e && e.message ? e.message : '')) { ACT.logout(); refresh(); } })
+    .loginLeader(cod);
+}
+/** Aplica o que a casca tinha guardado: tema, nome escolhido, última versão dos dados e código do líder. */
+function applyBridge() {
+  var b = BRIDGE;
+  if (!b) return;
+  if (b.dnms_theme && !b._t) { b._t = 1; S.theme = b.dnms_theme === 'light' ? 'light' : 'dark'; }
+  if (b.dnms_me && !S.me) S.me = b.dnms_me;
+  if (b.dnms_data && !S.data) { try { onData(JSON.parse(b.dnms_data), true); } catch (e) {} }
+  if (b.dnms_leader && !S.leader && shellOk()) { try { S.leader = JSON.parse(b.dnms_leader); } catch (e) { S.leader = null; } b.dnms_leader = ''; verifyLeader(); }
+}
+function server() { return (typeof google !== 'undefined' && google.script) ? google.script.run : null; }
+
+function load(silent) {
+  var run = server();
+  if (!run) { S.err = 'Este arquivo precisa ser aberto pelo link do app (Apps Script).'; render(); return; }
+  if (S.loading) return;
+  S.loading = true; S.lastLoad = Date.now();
+  if (!silent) { S.busy = 'atualizando…'; S.err = ''; if (S.data) render(); }
+  run.withSuccessHandler(function (d) { onData(d, false); }).withFailureHandler(onFail).getData();
+}
+
+function startDraft() { if (!S.draft) { S.draftKeys = JSON.parse(JSON.stringify(setlist().keys || {})); S.draft = setlist().items.slice(); } }
+function resetEdit() { S.draft = null; S.dirty = false; S.mode = 'view'; S.picker = null; S.newSongs = {}; S.draftKeys = {}; S.keyPick = null; S.draftBpm = {}; S.bpmPick = null; }
+
+function copy(text) {
+  function fallback() {
+    var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    if (ok) { S.manual = ''; toast('Resumo copiado'); } else { S.manual = text; render(); }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { S.manual = ''; toast('Resumo copiado'); }, fallback);
+  else fallback();
+}
+
+var ACT = {
+  tab: function (a) { if (S.tab !== a) S.anim = true; S.tab = a; S.manual = ''; window.scrollTo(0, 0); },
+  date: function (a) { if (S.dirty) { toast('Salve ou descarte as alterações antes de trocar de data'); return false; } if (S.date !== a) S.anim = true; S.date = a; resetEdit(); S.manual = ''; },
+  edate: function (a) { if (!S.dirty) { if (S.date !== a) S.anim = true; S.date = a; resetEdit(); } else { toast('Salve as alterações do setlist antes'); return false; } },
+  month: function (a) { if (S.month !== a) S.anim = true; S.month = a; },
+  escedit: function () { S.escEdit = !S.escEdit; },
+  role: function (a) { var p = a.split('|'); S.rolePick = { d: p[0], i: Number(p[1]) }; },
+  roleclose: function () { S.rolePick = null; },
+  setrole: function (nome) {
+    var run = server(), R = S.rolePick, alvo = null;
+    S.data.cultos.forEach(function (x) { if (x.d === R.d) x.team.forEach(function (p) { if (p.i === R.i) alvo = p; }); });
+    S.rolePick = null;
+    if (!run || !alvo || !S.leader) return;
+    var antes = { n: alvo.n, v: alvo.v, u: alvo.u };
+    alvo.n = nome; delete alvo.u; if (nome) delete alvo.v; else alvo.v = true; S.err = '';
+    run.withSuccessHandler(function () { store('dnms_data', JSON.stringify(S.data)); })
+      .withFailureHandler(function (e) { alvo.n = antes.n; alvo.v = antes.v; alvo.u = antes.u; S.err = 'Não consegui alterar a escala: ' + (e && e.message ? e.message : e); render(); })
+      .setEscala(S.leader.code, R.d, R.i, nome);
+  },
+  me: function (a) { S.anim = true; S.me = a; store('dnms_me', a); window.scrollTo(0, 0); topSend({ dnms: 'push-state' }); },
+  notme: function () { S.me = ''; store('dnms_me', ''); },
+  pushon: function () {
+    var run = server();
+    if (!run || !TOP) return false;
+    if (S.pushKey) { topSend({ dnms: 'push-ask', key: S.pushKey }); return false; }
+    S.push.busy = 'preparando…'; S.err = '';
+    run.withSuccessHandler(function (k) { S.pushKey = k; S.push.busy = ''; render(); topSend({ dnms: 'push-ask', key: k }); })
+      .withFailureHandler(function (e) { S.push.busy = ''; S.err = 'Não consegui preparar os lembretes: ' + (e && e.message ? e.message : e); render(); })
+      .pushChave();
+  },
+  pushtest: function () {
+    var run = server();
+    if (!run || !S.push.endpoint) return false;
+    S.push.busy = 'enviando teste…'; S.err = '';
+    run.withSuccessHandler(function () { S.push.busy = ''; toast('Teste enviado. Deve chegar em instantes.'); })
+      .withFailureHandler(function (e) { S.push.busy = ''; S.err = 'O teste não saiu: ' + (e && e.message ? e.message : e); render(); })
+      .pushTeste(S.push.endpoint);
+  },
+  gosetlist: function (a) { if (S.dirty) { toast('Salve as alterações do setlist antes'); return false; } S.date = a; resetEdit(); S.tab = 'setlist'; window.scrollTo(0, 0); },
+  avail: function (d) {
+    var run = server(), who = S.me, key = who + '|' + d, old = myAvail(d);
+    if (!run || old === undefined) return false;
+    var st = old === 'Disponível' ? 'Indisponível' : 'Disponível';
+    S.data.avail[d][nrm(who)] = st; S.pend[key] = { d: d, who: who, st: st }; S.err = '';
+    run.withSuccessHandler(function () { if (S.pend[key] && S.pend[key].st === st) delete S.pend[key]; store('dnms_data', JSON.stringify(S.data)); })
+      .withFailureHandler(function (e) { delete S.pend[key]; S.data.avail[d][nrm(who)] = old; S.err = 'Não consegui gravar sua resposta: ' + (e && e.message ? e.message : e); render(); })
+      .setAvailability(who, d, st);
+  },
+  theme: function () { S.theme = S.theme === 'light' ? 'dark' : 'light'; store('dnms_theme', S.theme); },
+  reload: function () { if (S.loading) return false; S.spin = true; load(); render(); return false; },
+  ask: function () { S.ask = true; S.tab = 'setlist'; window.scrollTo(0, 0); },
+  logout: function () { S.leader = null; S.ask = false; S.escEdit = false; S.rolePick = null; store('dnms_leader', ''); resetEdit(); },
+  mode: function (a) { if (!canEdit()) return false; startDraft(); S.mode = S.mode === a ? 'view' : a; },
+  up: function (a) { var i = Number(a); if (i > 0) { var d = S.draft; d.splice(i - 1, 0, d.splice(i, 1)[0]); S.dirty = true; } },
+  down: function (a) { var i = Number(a), d = S.draft; if (i < d.length - 1) { d.splice(i + 1, 0, d.splice(i, 1)[0]); S.dirty = true; } },
+  del: function (a) { var t = S.draft.splice(Number(a), 1)[0]; delete S.draftKeys[t]; S.dirty = true; },
+  key: function (a) { if (!canEdit()) return false; startDraft(); S.keyPick = { i: Number(a), minor: /m$/.test(keyOf(S.draft[Number(a)])) }; },
+  kclose: function () { S.keyPick = null; },
+  bpm: function (a) { if (!canEdit()) return false; startDraft(); S.bpmPick = { i: Number(a), v: String(bpmOf(S.draft[Number(a)]) || '') }; },
+  bpmclose: function () { S.bpmPick = null; },
+  bpmtap: function () {
+    var K = S.bpmPick, now = Date.now();
+    if (!K.t || !K.t.length || now - K.t[K.t.length - 1] > 2000) K.t = [];
+    K.t.push(now);
+    if (K.t.length > 9) K.t.shift();
+    if (K.t.length > 1) K.v = String(Math.max(30, Math.min(250, Math.round(60000 * (K.t.length - 1) / (K.t[K.t.length - 1] - K.t[0])))));
+  },
+  bpmstep: function (a) { S.bpmPick.t = []; var n = Number(S.bpmPick.v) || 100; S.bpmPick.v = String(Math.max(30, Math.min(250, n + Number(a)))); },
+  bpmset: function (a) {
+    var t = S.draft[S.bpmPick.i], v = a === 'clear' ? '' : String(S.bpmPick.v).replace(/\D/g, '');
+    if (a !== 'clear' && !(Number(v) >= 30 && Number(v) <= 250)) { S.err = 'Digite um BPM entre 30 e 250.'; S.bpmPick = null; return; }
+    S.draftBpm[t] = v; S.dirty = true; S.err = ''; S.bpmPick = null;
+  },
+  kminor: function () { S.keyPick.minor = !S.keyPick.minor; },
+  kset: function (a) { S.draftKeys[S.draft[S.keyPick.i]] = a + (S.keyPick.minor ? 'm' : ''); S.dirty = true; S.keyPick = null; },
+  kfull: function (a) { S.draftKeys[S.draft[S.keyPick.i]] = String(a).trim().slice(0, 4); S.dirty = true; S.keyPick = null; },
+  kclear: function () { delete S.draftKeys[S.draft[S.keyPick.i]]; S.dirty = true; S.keyPick = null; },
+  pick: function (a) { if (!canEdit()) return false; startDraft(); if (S.mode === 'view') S.mode = 'edit'; S.picker = { i: Number(a), cat: 'Todas', q: '', form: null }; render(); load(true); return false; },
+  newsong: function () { S.picker.form = { t: S.picker.q.replace(/\s+/g, ' ').trim(), a: '', c: '' }; },
+  ncat: function (a) { S.picker.form.c = S.picker.form.c === a ? '' : a; },
+  nocancel: function () { S.picker.form = null; },
+  noadd: function () { var f = S.picker.form; if (!f.t) return; S.newSongs[f.t] = { a: f.a.trim(), c: f.c }; ACT.choose(f.t); },
+  closepick: function () { S.picker = null; },
+  cat: function (a) { S.picker.cat = a; },
+  choose: function (a) {
+    if (S.picker.i < 0) S.draft.push(a); else { delete S.draftKeys[S.draft[S.picker.i]]; S.draft[S.picker.i] = a; }
+    var lk = (S.data.leaderKeys || {})[leaderOfDay()] || {};
+    if (lk[a] && !S.draftKeys[a]) S.draftKeys[a] = lk[a];
+    S.dirty = true; S.picker = null;
+  },
+  copy: function () { copy(summaryText()); return false; },
+  save: function (a) {
+    var run = server(), confirm = a === '1';
+    if (!run || !S.leader) return false;
+    S.busy = confirm ? 'confirmando…' : 'salvando…'; render();
+    var novas = items().filter(function (t) { return !inRep(t); }).map(function (t) { var n = S.newSongs[t] || {}; return { t: t, a: n.a || '', c: n.c || '' }; });
+    var tons = {}; items().forEach(function (t) { if (S.draftKeys[t]) tons[t] = S.draftKeys[t]; });
+    var bpms = {}; items().forEach(function (t) { if (S.draftBpm[t] !== undefined && S.draftBpm[t] !== (song(t).bpm || '')) bpms[t] = S.draftBpm[t]; });
+    run.withSuccessHandler(function (d) { resetEdit(); onData(d, false); toast(confirm ? 'Setlist confirmado' : 'Rascunho salvo'); })
+      .withFailureHandler(function (e) { S.busy = ''; S.err = 'Não consegui salvar: ' + (e && e.message ? e.message : e); render(); })
+      .saveSetlist(S.leader.code, S.date, items().slice(), confirm, leaderOfDay(), novas, tons, bpms);
+    return false;
+  }
+};
+
+/** Resposta tátil leve a cada toque. Android: vibração curta. iPhone (iOS 18+): o "tique" do sistema. */
+function haptic() {
+  try { if (navigator.vibrate && !/iPhone|iPad/.test(navigator.userAgent)) { navigator.vibrate(8); return; } } catch (e) {}
+  try {
+    var l = document.getElementById('hpt');
+    if (!l) { l = document.createElement('label'); l.id = 'hpt'; l.setAttribute('aria-hidden', 'true'); l.style.cssText = 'position:fixed;left:-200px;top:0;width:1px;height:1px;overflow:hidden;opacity:0'; l.innerHTML = '<input type="checkbox" switch tabindex="-1">'; document.body.appendChild(l); }
+    l.click();
+  } catch (e) {}
+}
+document.addEventListener('click', function (ev) {
+  var el = ev.target.closest ? ev.target.closest('[data-act]') : null;
+  if (!el || el.disabled) return;
+  haptic();
+  var r = ACT[el.getAttribute('data-act')](el.getAttribute('data-arg'));
+  if (r !== false) render();
+});
+document.addEventListener('input', function (ev) {
+  if (ev.target.id === 'q' && S.picker) { S.picker.q = ev.target.value; document.getElementById('plist').innerHTML = pickerList(); }
+  if (ev.target.id === 'na' && S.picker && S.picker.form) S.picker.form.a = ev.target.value;
+  if (ev.target.id === 'bpm' && S.bpmPick) S.bpmPick.v = ev.target.value;
+});
+document.addEventListener('submit', function (ev) {
+  ev.preventDefault();
+  var code = document.getElementById('code').value, run = server();
+  if (!run) return;
+  S.busy = 'conferindo código…'; S.err = ''; render();
+  run.withSuccessHandler(function (r) { S.leader = { name: r.name, code: code, admin: !!r.admin }; store('dnms_leader', JSON.stringify(S.leader)); S.ask = false; S.busy = ''; render(); })
+    .withFailureHandler(function (e) { S.busy = ''; S.err = e && e.message ? e.message : 'Código não reconhecido.'; render(); })
+    .loginLeader(code);
+});
+window.addEventListener('message', function (ev) {
+  if (!TOP || ev.origin !== TOP || !ev.data) return;
+  if (ev.data.dnms === 'push') { onPush(ev.data); return; }
+  if (ev.data.dnms !== 'data') return;
+  BRIDGE = ev.data.store || {};
+  if (typeof ev.data.convite === 'string' && ev.data.convite.trim()) {
+    S.me = ev.data.convite.trim().slice(0, 60); store('dnms_me', S.me); S.tab = 'eu';
+  }
+  applyBridge();
+  if (S.data) refresh(); else render();
+});
+/** A casca avisa aqui como estão os lembretes neste aparelho. */
+function onPush(d) {
+  var sub = d.sub || null;
+  S.push.state = d.state || ''; S.push.why = d.why || ''; S.push.endpoint = sub ? sub.endpoint : '';
+  if (d.error) S.err = 'Não consegui ativar os lembretes: ' + d.error;
+  var run = server(), marca = sub ? S.me + '|' + sub.endpoint.slice(-24) : '';
+  if (sub && S.me && run && (d.fresh || ((BRIDGE && BRIDGE.dnms_pushme) || store('dnms_pushme')) !== marca)) {
+    if (d.fresh) S.push.busy = 'ativando lembretes…';
+    run.withSuccessHandler(function (r) { store('dnms_pushme', marca); if (BRIDGE) BRIDGE.dnms_pushme = marca; if (d.fresh) { S.push.busy = ''; toast(r && r.enviado ? 'Lembretes ativados. Olha o aviso chegando.' : 'Lembretes ativados.'); } })
+      .withFailureHandler(function (e) { if (d.fresh) { S.push.busy = ''; S.push.endpoint = ''; S.err = 'Não consegui ativar os lembretes: ' + (e && e.message ? e.message : e); render(); } })
+      .pushSalvar(S.me, sub, !d.fresh);
+  }
+  if (!quiet()) render();
+}
+window.addEventListener('offline', function () { if (S.data) { S.offline = true; render(); } });
+window.addEventListener('online', function () { load(true); });
+document.addEventListener('visibilitychange', function () { if (!document.hidden && Date.now() - S.lastLoad > 60000) load(true); });
+// Atualização automática: a cada 30 s no modo líder, a cada 5 min para os demais.
+setInterval(function () {
+  if (document.hidden || S.loading || !S.data) return;
+  if (Date.now() - S.lastLoad >= (S.leader ? 30000 : 300000)) load(true);
+}, 10000);
+
+(function init() {
+  S.theme = store('dnms_theme') === 'light' ? 'light' : 'dark';
+  S.me = store('dnms_me') || '';
+  try { S.leader = JSON.parse(store('dnms_leader') || 'null'); } catch (e) { S.leader = null; }
+  try { var ss = JSON.parse(sessionStorage.getItem('dnms_sess') || 'null'); if (ss) { S.leader = ss.leader || S.leader; S.date = ss.date || ''; S.draft = ss.draft || null; S.dirty = !!ss.dirty; S.mode = ss.draft ? (ss.mode || 'view') : 'view'; S.newSongs = ss.newSongs || {}; S.draftKeys = ss.draftKeys || {}; S.draftBpm = ss.draftBpm || {}; } } catch (e) {}
+  var cached = store('dnms_data');
+  if (cached) { try { onData(JSON.parse(cached), true); } catch (e) {} }
+  render();
+  load();
+  verifyLeader();
+  topSend({ dnms: 'get' });
+  topSend({ dnms: 'push-state' });
+})();
+</script>
+</body>
+</html>
