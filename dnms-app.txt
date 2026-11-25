@@ -57,6 +57,10 @@ a{color:inherit}
 .gap .ico{color:var(--warn)}
 .bar{border-radius:16px;padding:11px 14px;font-size:13px;background:var(--card2)}
 .tom{text-align:right;min-width:44px;flex-shrink:0}.tom .k{font-size:28px;font-weight:300;color:var(--accent-text);line-height:1}.tom .b{font-size:10.5px;color:var(--muted);margin-top:3px}.tom .l{font-size:9px;font-weight:600;letter-spacing:.8px;color:var(--muted);margin-bottom:2px}
+.avs{display:flex;gap:3px;padding:3px;background:var(--seg);border-radius:999px;flex-shrink:0}
+.av{min-height:38px;min-width:108px;justify-content:center;padding:0 10px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+.av.sim{background:var(--accent);color:var(--on-accent)}
+.av.nao{background:var(--warnbg);color:var(--warn)}
 .mini{width:36px;height:36px;border-radius:999px;background:var(--card2);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 nav{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(14px + env(safe-area-inset-bottom));display:flex;justify-content:center;pointer-events:none}
 nav div{pointer-events:auto;width:100%;max-width:448px;display:flex;justify-content:space-around;padding:8px 6px;border-radius:24px;background:var(--card);box-shadow:0 -10px 30px rgba(0,0,0,.45)}
@@ -391,12 +395,16 @@ function viewEu() {
   if (order.some(function (k) { return months[k].some(function (d) { return myAvail(d) !== undefined; }); })) order.forEach(function (k) {
     out += '<h2>Disponibilidade em ' + MESES[Number(k.slice(5)) - 1] + '</h2>';
     if (months[k].every(function (d) { return myAvail(d) === undefined; })) { out += '<div class="card muted small">Seu nome não está na lista de disponibilidade deste mês. Fale com quem monta a escala.</div>'; return; }
-    out += '<div class="small muted">Toque em cada domingo para dizer se pode ou não.</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">' + months[k].map(function (d) {
-      var st = myAvail(d), day = dt(d).getDate();
-      if (st === 'Disponível') return '<button class="chip on" data-act="avail" data-arg="' + d + '" aria-label="Dia ' + day + ': posso. Toque para mudar" style="min-width:0;min-height:68px">' + day + '<small>' + ic('check', 14, 2.6) + ' Posso</small></button>';
-      if (st === 'Indisponível') return '<button class="chip" data-act="avail" data-arg="' + d + '" aria-label="Dia ' + day + ': não posso. Toque para mudar" style="min-width:0;min-height:68px;color:var(--muted)"><span style="text-decoration:line-through">' + day + '</span><small>Não posso</small></button>';
-      return '<button class="chip" data-act="avail" data-arg="' + d + '" aria-label="Dia ' + day + ': sem resposta. Toque para responder" style="min-width:0;min-height:68px;border-style:dashed;border-color:var(--accent)">' + day + '<small style="color:var(--accent-text)">Responder</small></button>';
-    }).join('') + '</div>';
+    var falta = months[k].filter(function (d) { return myAvail(d) === 'Pendente'; }).length;
+    out += '<div class="small muted">Para cada domingo, toque em <b style="color:var(--text)">Posso</b> ou <b style="color:var(--text)">Não posso</b>.' +
+      (falta ? ' <span style="color:#FFB020;font-weight:600">Falta' + (falta > 1 ? 'm ' + falta + ' respostas' : ' 1 resposta') + '.</span>' : '') + '</div>' +
+      '<div class="card" style="padding:6px">' + months[k].map(function (d) {
+        var st = myAvail(d), x = dt(d), pend = st === 'Pendente';
+        var sim = '<button class="av' + (st === 'Disponível' ? ' sim' : '') + '" data-act="avail" data-arg="' + d + '|Disponível" aria-pressed="' + (st === 'Disponível') + '" aria-label="Dia ' + x.getDate() + ': posso">' + (st === 'Disponível' ? ic('check', 15, 2.6) : '') + 'Posso</button>';
+        var nao = '<button class="av' + (st === 'Indisponível' ? ' nao' : '') + '" data-act="avail" data-arg="' + d + '|Indisponível" aria-pressed="' + (st === 'Indisponível') + '" aria-label="Dia ' + x.getDate() + ': não posso">' + (st === 'Indisponível' ? ic('x', 15, 2.6) : '') + 'Não posso</button>';
+        return '<div class="row" style="padding:8px 8px;gap:10px"><div class="grow"><b style="font-weight:600">' + DIAS[x.getDay()].slice(0, 3) + ', ' + x.getDate() + ' ' + MESES[x.getMonth()].slice(0, 3) + '</b>' +
+          (pend ? '<div class="small" style="color:#FFB020">falta responder</div>' : '') + '</div><div class="avs">' + sim + nao + '</div></div>';
+      }).join('') + '</div>';
   });
   return out;
 }
@@ -618,9 +626,11 @@ var ACT = {
   },
   gosetlist: function (a) { if (S.dirty) { toast('Salve as alterações do setlist antes'); return false; } S.date = a; resetEdit(); S.tab = 'setlist'; window.scrollTo(0, 0); },
   avail: function (d) {
+    var parts = String(d).split('|'); d = parts[0];
     var run = server(), who = S.me, key = who + '|' + d, old = myAvail(d);
     if (!run || old === undefined) return false;
-    var st = old === 'Disponível' ? 'Indisponível' : 'Disponível';
+    var st = parts[1] === 'Disponível' || parts[1] === 'Indisponível' ? parts[1] : (old === 'Disponível' ? 'Indisponível' : 'Disponível');
+    if (st === old) return false;
     S.data.avail[d][nrm(who)] = st; S.pend[key] = { d: d, who: who, st: st }; S.err = '';
     run.withSuccessHandler(function () { if (S.pend[key] && S.pend[key].st === st) delete S.pend[key]; store('dnms_data', JSON.stringify(S.data)); })
       .withFailureHandler(function (e) { delete S.pend[key]; S.data.avail[d][nrm(who)] = old; S.err = 'Não consegui gravar sua resposta: ' + (e && e.message ? e.message : e); render(); })
